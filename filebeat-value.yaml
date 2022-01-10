@@ -1,0 +1,37 @@
+daemonset:
+  filebeatConfig:
+    filebeat.yml: |
+      filebeat.config:
+      #  inputs:
+      #    path: ${path.config}/inputs.d/*.yml
+      #    reload.enabled: true
+        modules:
+          path: ${path.config}/modules.d/*.yml
+          reload.enabled: true
+
+      filebeat.autodiscover:
+        providers:
+          - type: kubernetes
+            templates:
+              - condition:
+                  equals:
+                    kubernetes.namespace: ns-one
+                config:
+                  - type: container
+                    paths:
+                      - /var/log/containers/*-${data.kubernetes.container.id}.log
+                    exclude_lines: ["^\\s+[\\-`('.|_]"]  # drop asciiart lines
+
+      # processors:
+      #   - add_cloud_metadata: ~
+      #   - drop_fields:
+      #       when:
+      #         has_fields: ['kubernetes.labels.app']
+      #       fields:
+      #         - 'kubernetes.labels.app'
+
+      output.elasticsearch:
+        host: '${NODE_NAME}'
+        hosts: '${ELASTICSEARCH_HOSTS:elasticsearch-master:9200}'
+        username: '${ELASTICSEARCH_USERNAME}'
+        password: '${ELASTICSEARCH_PASSWORD}'

@@ -1,0 +1,25 @@
+volumeClaimTemplate:
+  resources:
+    requests:
+      storage: 10Gi
+replicas: 1
+minimumMasterNodes: 1
+esJavaOpts: "-Xmx128m -Xms128m"
+# Allocate smaller chunks of memory per pod.
+resources:
+  requests:
+    cpu: "100m"
+    memory: "512M"
+  limits:
+    cpu: "1000m"
+    memory: "512M"
+readinessProbe:
+  failureThreshold: 3
+  initialDelaySeconds: 200
+  periodSeconds: 10
+  successThreshold: 3
+  timeoutSeconds: 5
+esConfig:
+  elasticsearch.yml: |
+    xpack.security.enabled: false
+    xpack.security.http.ssl.enabled: false
